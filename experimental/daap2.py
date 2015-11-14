@@ -1,3 +1,4 @@
+from __future__ import print_function
 # daap.py
 #
 # DAAP classes and methods.
@@ -324,19 +325,19 @@ class DAAPObject(object):
     def __init__(self, str):
         self.buf = buffer(str)
 
-    def iterAtomsWithCodes(self, codes, p = 0L):
+    def iterAtomsWithCodes(self, codes, p = 0):
         """only yield atoms with specified codes"""
         for code, type, p, length in self.iterAtoms():
             if code in codes:
                 yield code, type, p, length
 
-    def iterAtomsWithCode(self, wcode, p = 0L):
+    def iterAtomsWithCode(self, wcode, p = 0):
         """only yield atoms with specified code"""
         for code, type, p, length in self.iterAtoms():
             if code == wcode:
                 yield code, type, p, length
 
-    def iterAtoms(self, i = 0L, end = 0L):
+    def iterAtoms(self, i = 0, end = 0):
         """iterate through every atom in the packet.
         yield code, type, start position, length"""
         if end == 0:
@@ -345,7 +346,7 @@ class DAAPObject(object):
             # read 4 bytes for the code and 4 bytes for the length of the objects data
             code, length = struct.unpack('!4sI', self.buf[i:i+8])
             # now we need to find out what type of object it is
-            if code == None or not dmapCodeTypes.has_key(code):
+            if code == None or code not in dmapCodeTypes:
                 type = None
             else:
                 type = dmapCodeTypes[code][1]
@@ -359,11 +360,11 @@ class DAAPObject(object):
             i += length
 
     def __getattr__(self, name):
-        if self.__dict__.has_key(name):
+        if name in self.__dict__:
             return self.__dict__[name]
-        elif self.__dict__.has_key('attrmap') and self.__dict__['attrmap'].has_key(name):
+        elif 'attrmap' in self.__dict__ and name in self.__dict__['attrmap']:
             try:
-                code, type, start, length = self.iterAtomsWithCode(self.__dict__['attrmap'][name]).next()
+                code, type, start, length = next(self.iterAtomsWithCode(self.__dict__['attrmap'][name]))
                 # TODO: why are some mcnm strings and others integers?
                 if code == 'mcnm' and type == 'i':
                     type = 's'
@@ -372,26 +373,26 @@ class DAAPObject(object):
                 #return decodeData(type, buffer(self.buf, start + 8, length - 8))
             except StopIteration:
                 return None
-        elif self.__class__.attrmap.has_key(name):
+        elif name in self.__class__.attrmap:
             try:
-                code, type, start, length = self.iterAtomsWithCode(self.__class__.attrmap[name]).next()
+                code, type, start, length = next(self.iterAtomsWithCode(self.__class__.attrmap[name]))
                 return decodeData(type, self.buf[start + 8:start + length])
                 #return decodeData(type, buffer(self.buf, start + 8, length - 8))
             except StopIteration:
                 return None
 
-        raise AttributeError, name
+        raise AttributeError(name)
 
     def codeName(self):
         code = struct.unpack('!4s', self.buf[0:4])[0]
-        if code == None or not dmapCodeTypes.has_key(code):
+        if code == None or code not in dmapCodeTypes:
             return None
         else:
             return dmapCodeTypes[code][0]
 
     def getAtom(self, icode):
         try:
-            code, type, start, length = self.iterAtomsWithCode(icode).next()
+            code, type, start, length = next(self.iterAtomsWithCode(icode))
             return decodeData(type, buffer(self.buf, start + 8, length - 8))
         except StopIteration:
             return None
@@ -523,7 +524,7 @@ if __name__ == '__main__':
         finally:
             # this here, so we logout even if there's an error somewhere,
             # or itunes will eventually refuse more connections.
-            print "--------------"
+            print("--------------")
             try:
                 session.logout()
             except Exception: pass

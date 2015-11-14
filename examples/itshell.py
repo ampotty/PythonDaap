@@ -1,4 +1,5 @@
 #!/usr/bin/python
+from __future__ import print_function
 from cmd import Cmd
 from daap import DAAPClient
 import sys
@@ -29,7 +30,7 @@ class ItShell(Cmd):
         """
         exit - Quits. Duh.
         """
-        print "bye."
+        print("bye.")
         sys.exit(0)
 
     def do_connect(self, spec):
@@ -46,10 +47,10 @@ class ItShell(Cmd):
         elif spec.count(" ") == 1:
             (server, port) = spec.split(" ")
         else:
-            print "Need server and port"
+            print("Need server and port")
             return
 
-        print "Connecting to %s:%s"%(repr(server), repr(port))
+        print("Connecting to %s:%s"%(repr(server), repr(port)))
         client = DAAPClient()
         client.connect(server, port)
         self.session = client.login()
@@ -61,62 +62,62 @@ class ItShell(Cmd):
         Lists the databases of the connected server
         """
         if not self.session:
-            print "Not connected"
+            print("Not connected")
             return
         databases = self.session.databases()
         for d in databases:
-            print "%s: %s"%(d.id, repr(d.name))
+            print("%s: %s"%(d.id, repr(d.name)))
 
     def do_database(self, id):
         """
         database <id> - use a particular database
         """
         if not self.session:
-            print "Not connected"
+            print("Not connected")
             return
         databases = self.session.databases()
         for d in databases:
             if str(d.id) == str(id):
                 self.database = d
-                print "using database '%s'"%repr(d.name)
+                print("using database '%s'"%repr(d.name))
                 self.get_tracks(reset = 1)
-                print "Got %s tracks"%len(self._tracks)
+                print("Got %s tracks"%len(self._tracks))
                 return
 
-        print "No such database"
+        print("No such database")
 
     def do_playlists(self, other):
         """
         Lists the playlists of the selected database
         """
         if not self.database:
-            print "No current database"
+            print("No current database")
             return
         playlists = self.database.playlists()
-        print "%s playlists in the selected database."%len(playlists)
+        print("%s playlists in the selected database."%len(playlists))
         for p in playlists:
-            print "%s: %s"%(p.id, repr(p.name))
+            print("%s: %s"%(p.id, repr(p.name)))
 
     def do_playlist(self, id):
         """
         playlist <id> - use a particular playlist
         """
         if not self.session:
-            print "Not connected"
+            print("Not connected")
             return
         if not self.database:
-            print "No current database"
+            print("No current database")
             return
         playlists = self.database.playlists()
         for p in playlists:
             if str(p.id) == str(id):
                 self.database = p
-                print "using playlist '%s'"%repr(p.name)
+                print("using playlist '%s'"%repr(p.name))
                 self._tracks = p.tracks()
-                print "Got %s tracks"%len(self._tracks)
+                print("Got %s tracks"%len(self._tracks))
                 return
 
-        print "No such database"
+        print("No such database")
 
     def get_tracks(self, reset = 0):
         if reset or "_tracks" not in self.__dict__:
@@ -127,18 +128,18 @@ class ItShell(Cmd):
     def do_tracks(self, other):
         """tracks - list tracks in the selected database"""
         if not self.database:
-            print "No current database"
+            print("No current database")
             return
         tracks = self.get_tracks()
-        print "%s tracks in the selected database."%len(tracks)
-        if len(tracks) > 50: print "displaying 1-50"
+        print("%s tracks in the selected database."%len(tracks))
+        if len(tracks) > 50: print("displaying 1-50")
         for t in tracks[:50]:
-            print "%s: %s - %s - %s"%(t.id, repr(t.artist), repr(t.album), repr(t.name))
+            print("%s: %s - %s - %s"%(t.id, repr(t.artist), repr(t.album), repr(t.name)))
 
     def do_search(self, other):
         """search <term> - list all tracks matching the given term"""
         if not self.database:
-            print "No current database"
+            print("No current database")
             return
         tracks = self.get_tracks()
         found = []
@@ -148,20 +149,20 @@ class ItShell(Cmd):
                 found.append( t )
 
         # [ t.atom.printTree() for t in found ]
-        print "%s tracks found."%len(found)
-        if len(found) > 50: print "displaying 1-50"
+        print("%s tracks found."%len(found))
+        if len(found) > 50: print("displaying 1-50")
         for t in found[:50]:
-            print "%s: %s - %s - %s"%(t.id, repr(t.artist), repr(t.album), repr(t.name))
+            print("%s: %s - %s - %s"%(t.id, repr(t.artist), repr(t.album), repr(t.name)))
         
     
     def do_download(self, spec):
         """download <track id> [<filename>] - download the given track to the local machine"""
         if not self.database:
-            print "No current database"
+            print("No current database")
             return
 
         if len(spec) == 0:
-            print "Need a track id"
+            print("Need a track id")
             return
         elif spec.count(" ") == 0:
             id = spec
@@ -169,7 +170,7 @@ class ItShell(Cmd):
         elif spec.count(" ") == 1:
             (id, filename) = spec.split(" ")
         else:
-            print "Need track id and filename only"
+            print("Need track id and filename only")
             return
 
         tracks = self.get_tracks()
@@ -179,7 +180,7 @@ class ItShell(Cmd):
                     filename = "%s - %s.%s"%(repr(t.artist), repr(t.name), t.type)
                 t.save( filename )
                 return
-        print "No such track"
+        print("No such track")
 
 
 

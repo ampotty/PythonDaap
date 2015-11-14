@@ -1,3 +1,4 @@
+from __future__ import print_function
 import dbus
 import avahi
 import gobject
@@ -8,10 +9,10 @@ server = dbus.Interface(bus.get_object(avahi.DBUS_NAME, avahi.DBUS_PATH_SERVER),
 
 def new_service(interface, protocol, name, type, domain, flags):
     interface, protocol, name, type, domain, host, aprotocol, address, port, txt, flags = server.ResolveService(interface, protocol, name, type, domain, avahi.PROTO_UNSPEC, dbus.UInt32(0))
-    print "Found service '%s' of type '%s' in domain '%s' at address '%s:%s'" % (name, type, domain, address, port)
+    print("Found service '%s' of type '%s' in domain '%s' at address '%s:%s'" % (name, type, domain, address, port))
 
 def remove_service(interface, protocol, name, type, domain):
-    print "Service '%s' of type '%s' in domain '%s' disappeared." % (name, type, domain)
+    print("Service '%s' of type '%s' in domain '%s' disappeared." % (name, type, domain))
 
 stype = '_daap._tcp'
 domain = 'local'

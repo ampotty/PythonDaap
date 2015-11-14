@@ -1,3 +1,4 @@
+from __future__ import print_function
 # daap.py
 #
 # DAAP classes and methods.
@@ -196,13 +197,13 @@ class DAAPObject(object):
         return None
 
     def codeName(self):
-        if self.code == None or not dmapCodeTypes.has_key(self.code):
+        if self.code == None or self.code not in dmapCodeTypes:
             return None
         else:
             return dmapCodeTypes[self.code][0]
 
     def objectType(self):
-        if self.code == None or not dmapCodeTypes.has_key(self.code):
+        if self.code == None or self.code not in dmapCodeTypes:
             return None
         else:
             return dmapCodeTypes[self.code][1]
@@ -282,7 +283,7 @@ class DAAPObject(object):
         self.code, self.length = struct.unpack('!4sI', data)
 
         # now we need to find out what type of object it is
-        if self.code == None or not dmapCodeTypes.has_key(self.code):
+        if self.code == None or self.code not in dmapCodeTypes:
             self.type = None
         else:
             self.type = dmapCodeTypes[self.code][1]
@@ -568,11 +569,11 @@ class DAAPTrack(object):
         self.atom = atom
 
     def __getattr__(self, name):
-        if self.__dict__.has_key(name):
+        if name in self.__dict__:
             return self.__dict__[name]
-        elif DAAPTrack.attrmap.has_key(name):
+        elif name in DAAPTrack.attrmap:
             return self.atom.getAtom(DAAPTrack.attrmap[name])
-        raise AttributeError, name
+        raise AttributeError(name)
 
     def request(self):
         """returns a 'response' object for the track's mp3 data.
@@ -640,7 +641,7 @@ if __name__ == '__main__':
         finally:
             # this here, so we logout even if there's an error somewhere,
             # or itunes will eventually refuse more connections.
-            print "--------------"
+            print("--------------")
             try:
                 session.logout()
             except Exception: pass
